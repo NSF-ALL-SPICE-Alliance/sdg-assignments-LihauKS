@@ -29,6 +29,7 @@ library(ggpubr)
 library(janitor)
 library(ggcorrplot)
 library(vembedr)
+library(plotly)
 ```
 
 
@@ -181,7 +182,7 @@ There's a few takeaways here
     
     - Goal 12 is Responsible Consumption & Production and Goal 13 is Climate Action
       
-      - This suggests that countries that have low scores regarding consumption and climate tend to have high scores for things like poverty. health, education, etc and vice versa. This is thought provoking regarding the environmental costs of being and economically advantaged country with higher scores for poverty, health, education etc
+      - This suggests that countries that have low scores regarding consumption and climate tend to have high scores for things like poverty. health, education, etc and vice versa. This is thought provoking regarding the environmental costs of being an economically advantaged country with higher scores for poverty, health, education etc
   
   - The strongest negative correlation is between Goal 12 scores and Goal 16 scores
   
@@ -197,13 +198,13 @@ To circle back and reinforce how the linear regression (line drawn through our s
   - What does this look like on scatter plot?
   
 ```{r, warning=FALSE, message=FALSE}
-ggplot(sdr_data, aes(x = goal_12_score, 
-                     y = goal_9_score)) +
+goal_3_and_11 <- ggplot(sdr_data, aes(x = goal_3_score, 
+                     y = goal_11_score, label = country)) +
   geom_point() +
   geom_smooth() +
   stat_cor() +
   theme_minimal() 
-
+ggplotly(goal_3_and_11)
 ```
 
 ### <span style="color: red;">Challenge 1</span>
@@ -212,11 +213,14 @@ ggplot(sdr_data, aes(x = goal_12_score,
 
   - Make the plot interactive with ggplotly() so you can hover over the points and see the country, x axis sdg score, and y axis sdg score
     
-    - **Hint** to be able to tell which point is which country, you will have to add `label = country` in the aes function after you tell ggplot what you which scores you want on the x and y axis
+    - **Hint** to be able to tell which point is which country, you will have to add `label = country` in the aes function after you tell ggplot which scores you want on the x and y axis
      - **Hint** to use the ggplotly() function, you will need to use `library()` to load in the plotly package in the first code chunk in this R Markdown
 
   - in 4-6 sentences, come up with a hypotheses for the positive or negative correlation between the 2 goals
+      There is a positive correlation between SDG goals 3 and 11 meaning when one increases, the other does as well. Goal 3 is good health and goal 11 is sustainable cities and communities. This trend makes sense. Countries that tend to have the highest scores of both SDGs include Canada, Finland, Spain, etc. I'm assuming that countries with high scores for both SDGs (positive correlation) is explained by the value they place on practicing good health for their people and the places where their people live as well.
       
       - are there any points that don't follow the trend (outliers)
+      There are outliers with high goal 3 scores and low goal 11 scores, and vice versa. 
         
         - which country(s) are outliers?
+        South Sudan, Central African Republic, Afghanistan, Syrian Arab Republic, etc. 
