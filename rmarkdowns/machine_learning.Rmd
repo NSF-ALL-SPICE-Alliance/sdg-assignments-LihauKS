@@ -194,9 +194,9 @@ Review this (excellent UC Business Analytics guide to clustering)[https://uc-r.g
   
   - We follow a very similar method
 
-The functions we are going to use to cluster require that the column being clustered (country), based on the information in all of the other columns (sdg scores) is actually the rownames of the dataframe
+The functions we are going to use to cluster require that the column being clustered (country), based on the information in all of the other columns (sdg scores) is actually the row names of the dataframe
 
-- So, we simply shift the country column to become the rownames of the dataframe with this code
+- So, we simply shift the country column to become the row names of the dataframe with this code
 
 ```{r}
 sdr_data_imputed <- sdr_data_imputed %>%
@@ -302,7 +302,7 @@ pdp::partial(rf_matmort, pred.var = "normalized_score_sdg6_sanita", plot = TRUE)
 
 *How to interpret*:
   
-- yhat is the models prediction of maternal mortality scores
+- What is the models prediction of maternal mortality scores
   
   - note the range is only from 77 to 85
 - the x axis is the SDG 6 sanitation score
@@ -333,20 +333,70 @@ plotPartial(pd)
 
 Edit this code chunk `k2 <- kmeans(sdr_data_imputed, centers = 2)` under the silhouette plot to increase the number of clusters
 
+
+```{r}
+k2 <- kmeans(sdr_data_imputed, centers = 6)
+```
+
 - Then, run the code chunk `fviz_cluster(k2, data = sdr_data_imputed) + theme_minimal()` to see the new visualization with the increased number of clusters
+
+```{r}
+fviz_cluster(k2, data = sdr_data_imputed) + theme_minimal()
+```
+  
   
 #### <span style="color: red;">Challenge 2</span>
 
 Edit this code chunk `rf_matmort <- randomForest(normalized_score_sdg3_matmort ~ ., data = sdr_data_imputed, importance = TRUE)` to predict a different indicator score (any indicator other than normalized_score_sdg3_matmort)
 
+```{r}
+rf_matmort <- randomForest(normalized_score_sdg6_water ~ ., data = sdr_data_imputed, importance = TRUE)
+```
+
+
 - Rename the random forest model from rf_matmort to something that more accurately represents the model (base the name on the indicator you are predicting)
+
+```{r}
+Clean_Water_and_Sanitation <- randomForest(normalized_score_sdg6_water ~ ., data = sdr_data_imputed, importance = TRUE)
+```
 
   - Run the remainder of the code chunks below to see the different outputs
     
     - *Hint* make sure to continue replacing rf_matmort with the new name you assign your random forest model
 
+```{r}
+Clean_Water_and_Sanitation
+```
+```{r}
+importance_df <- as.data.frame(Clean_Water_and_Sanitation$importance)
 
+```
 
+```{r}
+importance_df_top_10 <- importance_df %>%
+  rownames_to_column(var = "variable") %>%
+  slice_max(n = 10, order_by = `%IncMSE`)
+```
 
+```{r}
+ggplot(importance_df_top_10, aes(x = `%IncMSE`, y = reorder(variable, `%IncMSE`))) +
+  geom_bar(stat = "identity", fill = "magenta", color = "black") +
+  theme_minimal() +
+  labs(title = "Most Important Variables in Predicting Clean Water and Sanitation",
+       subtitle = "Top 10",
+       y = "SDG Indicator",
+       x = "Feature Importance (% Increase in Mean Squared Error)")
+```
 
+```{r}
+pdp::partial(Clean_Water_and_Sanitation, pred.var = "normalized_score_sdg7_elecac", plot = TRUE)
+
+```
+
+```{r}
+pd <- pdp::partial(Clean_Water_and_Sanitation, pred.var = c("normalized_score_sdg7_elecac", "normalized_score_sdg6_water"))
+# Default PDP
+plotPartial(pd)
+```
+  
   
